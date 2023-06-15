@@ -1,0 +1,26 @@
+name: memoji
+description: A new Flutter plugin project.
+version: 0.0.1
+homepage: null
+
+environment:
+  sdk: ">=3.0.1 <4.0.0"
+  flutter: ">=3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_image: ^4.1.6
+  path_provider: ^2.0.15
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: SwiftMemojiPlugin
