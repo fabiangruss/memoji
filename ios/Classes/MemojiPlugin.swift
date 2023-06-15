@@ -2,55 +2,42 @@ import Flutter
 import UIKit
 import MemojiView
 
-
-public class SwiftMemojiPlugin: NSObject, FlutterPlugin, UITextViewDelegate {
-  var result: FlutterResult?
+public class SwiftMemojiPlugin: NSObject, FlutterPlugin, MemojiViewDelegate {
+  var channel: FlutterMethodChannel!
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "memoji", binaryMessenger: registrar.messenger())
     let instance = SwiftMemojiPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
+    instance.channel = channel
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    if (call.method == "getMemoji") {
-      self.result = result
-      showTextView()
-    } else {
-      result(FlutterMethodNotImplemented)
+public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+  if call.method == "getMemoji" {
+    // Create MemojiView and set its delegate
+    let memojiView = MemojiView(frame: UIScreen.main.bounds)
+    memojiView.delegate = self
+
+    // Obtain the root view controller
+    if let viewController = UIApplication.shared.delegate?.window??.rootViewController {
+      // Add the MemojiView to the root view controller's view
+      viewController.view.addSubview(memojiView)
     }
   }
-
-  func showTextView() {
-    let textView = UITextView(frame: CGRect.zero)
-    textView.delegate = self
-    textView.isHidden = true
-    textView.isEditable = true
-    textView.allowsEditingTextAttributes = true
-
-    let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-    keyWindow?.addSubview(textView)
-
-    textView.becomeFirstResponder()
+}
+  // MemojiView delegate
+  public func didUpdateImage(image: UIImage, type: ImageType) {
+    let byteArray = getByteArrayForImage(image)
+    // Send the byte array to Flutter
+    channel.invokeMethod("onImageUpdated", arguments: byteArray)
   }
 
-  public func textViewDidChange(_ textView: UITextView) {
-    guard let attributedString = textView.attributedText else { return }
+  private func getByteArrayForImage(_ image: UIImage, compression: CGFloat = 1.0) -> Array<UInt8> {
+    guard let imageData = image.jpegData(compressionQuality: compression) as? NSData else { return [] }
+    let count = imageData.length / MemoryLayout<Int8>.size
 
-    attributedString.enumerateAttribute(NSAttributedString.Key.attachment, in: NSRange(location: 0, length: attributedString.length), options: [], using: {(value, range, stop) -> Void in
-      if let attachement = value as? NSTextAttachment {
-        var image: UIImage?
-        if let attachementImage = attachement.image {
-          image = attachementImage
-        } else {
-          image = attachement.image(forBounds: attachement.bounds, textContainer: nil, characterIndex: range.location)
-        }
-
-        if let imageData = image?.pngData() {
-          result?(imageData)
-          textView.removeFromSuperview()
-        }
-      }
-    })
+    var bytes = [UInt8](repeating: 0, count: count)
+    imageData.getBytes(&bytes, length:count * MemoryLayout<Int8>.size)
+    return bytes
   }
 }
