@@ -1,7 +1,10 @@
+
 # Memoji Flutter Plugin
 
 A Flutter plugin for iOS to fetch Memoji from the user's iPhone.
 The plugin opens the iOS (emoji) keyboard and allows the user to select a Memoji. The selected Memoji is then returned as an image or saved to a temporary folder and returned as a path.
+
+This plugin uses the [MemojiView](https://github.com/emrearmagan/MemojiView) library for handling Memoji on the iOS side.
 
 ## ⚠️ Important Note
 This plugin only works on iOS devices because it uses iOS specific functionality for Memoji. Android is not supported.

@@ -1,3 +1,7 @@
-## 0.0.1
+## [0.0.1]
 
-* TODO: Describe initial release.
+- Initial release of the Flutter Memoji package (15.06.2023).
+- Integration with the MemojiView library for iOS to provide Memoji functionality.
+- `SwiftMemojiPlugin` class for handling Memoji interactions.
+- A delegate method in `SwiftMemojiPlugin` for handling updates to the Memoji image.
+- Support for handling Memoji image data and sending it to the Flutter side.
